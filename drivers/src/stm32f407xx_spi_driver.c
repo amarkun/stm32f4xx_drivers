@@ -269,16 +269,22 @@ uint8_t SPI_SendDataIT(SPI_Handle_t* pSPIHandle, uint8_t *pTxBuffer, uint32_t le
 		//3.	Enable TXEIE control bit to get interrupt whenever TXE flag is set in SR
 		pSPIHandle->pSPIx->CR2 |= (1 << SPI_CR2_TXEIE); //should I also enable error interrupt?
 //		pSPIHandle->pSPIx->CR2 |= (1 << SPI_CR2_ERRIE)
+
+		//if SPi is not enabled, then enable it
+		//I think this should be in the if, because, otherwise it is assumed that it is enabled
+		if((pSPIHandle->pSPIx->CR1 & (1 << SPI_CR1_SPE)) != (1 << SPI_CR1_SPE)){
+			//SET_BIT(pSPIx->CR1, (1 << SPI_CR1_SPE)); // this is repetitive, should just have a mask,
+			SPI_PeripheralControl(pSPIHandle->pSPIx, ENABLE);
+		}
 	}
 
-//	//if SPi is not enabled, then enable it
-//	if((pSPIHandle->pSPIx->CR1 & (1 << SPI_CR1_SPE)) != (1 << SPI_CR1_SPE)){
-//		//SET_BIT(pSPIx->CR1, (1 << SPI_CR1_SPE)); // this is repetitive, should just have a mask,
-//		SPI_PeripheralControl(pSPIHandle->pSPIx, ENABLE);
-//	}
 
-//	return pSPIHandle->TxState;
-	return state; //should we return this variable or the struct state variable?
+	//why return state here and not pSPIHandle->TxState?
+	//if the TxState is not busy, then we configure to send as an intterupt, which presumably executes
+	//in this case, state will return as SPI_NOT_BUSY
+	//this is intended because this function will only return once the data is all sent
+	//if TxState is busy, then this will return, that it is busy, which will allow the while loop to try again
+	return state;
 }
 
 /******************************************************
@@ -307,15 +313,16 @@ uint8_t SPI_ReceiveDataIT(SPI_Handle_t* pSPIHandle, uint8_t *pRxBuffer, uint32_t
 
 		//3.	Enable TXEIE control bit to get interrupt whenever TXE flag is set in SR
 		pSPIHandle->pSPIx->CR2 |= (1 << SPI_CR2_RXNEIE); //should I also enable error interrupt?
+
+		//if SPi is not enabled, then enable it
+		if((pSPIHandle->pSPIx->CR1 & (1 << SPI_CR1_SPE)) != (1 << SPI_CR1_SPE)){
+			//SET_BIT(pSPIx->CR1, (1 << SPI_CR1_SPE)); // this is repetitive, should just have a mask,
+			SPI_PeripheralControl(pSPIHandle->pSPIx, ENABLE);
+		}
 	}
 
-	//if SPi is not enabled, then enable it
-	if((pSPIHandle->pSPIx->CR1 & (1 << SPI_CR1_SPE)) != (1 << SPI_CR1_SPE)){
-		//SET_BIT(pSPIx->CR1, (1 << SPI_CR1_SPE)); // this is repetitive, should just have a mask,
-		SPI_PeripheralControl(pSPIHandle->pSPIx, ENABLE);
-	}
 
-//	return pSPIHandle->TxState;
+
 	return state; //should we return this variable or the struct state variable? will this be consistent with the RxState?
 }
 
@@ -395,7 +402,7 @@ void SPI_IRQHandling(SPI_Handle_t *pSPIHandle){
 		spi_rxne_interrupt_handle(pSPIHandle);
 	}
 
-	// check for RXNE
+	// check for Overun flag
 	status = pSPIHandle->pSPIx->SR & SPI_OVR_FLAG; // will be 1 if OVR is set
 	control = pSPIHandle->pSPIx->CR2 & (1 << SPI_CR2_ERRIE); // will be 1 if ERRIE is set
 
@@ -494,15 +501,19 @@ __weak void SPI_ApplicationEventCallback(SPI_Handle_t *pSPIHandle, uint8_t appEv
 }
 
 //helper function implementations
-
+//this will run when TXE and TXEIE are 1
+//AS long as the TxLen is above 0, then this will get called again as soon as the DR is empty
+//When TxLen is 0, then disable TXEIE, reset handle variables, and Set SPI_READY again
+//We then use SPI_ApplicationEventCallback to inform the application that it is done
+//Note: when we close transmission, pSPIHandle->pRxBuffer is set to  NULL
+//however, the buffer that this originally pointed to will still contain the value read
 static void spi_txe_interrupt_handle(SPI_Handle_t *pSPIHandle){
 
 	// Check DFF in CR1
 	if (pSPIHandle->pSPIx->CR1 & (1 << SPI_CR1_DFF) ) {
 		//16 bit dff
 		pSPIHandle->pSPIx->DR = *((uint16_t*)pSPIHandle->pTxBuffer);
-		pSPIHandle->TxLen--;
-		pSPIHandle->TxLen--;
+		pSPIHandle->TxLen -= 2;
 		(uint16_t*)pSPIHandle->pTxBuffer++;
 	} else {
 		//8 bit dff
@@ -526,13 +537,12 @@ static void spi_rxne_interrupt_handle(SPI_Handle_t *pSPIHandle){
 	// Check DFF in CR1
 	if (pSPIHandle->pSPIx->CR1 & (1 << SPI_CR1_DFF) ) {
 		//16 bit dff
-		pSPIHandle->pSPIx->DR = *((uint16_t*)pSPIHandle->pRxBuffer);
-		pSPIHandle->RxLen--;
-		pSPIHandle->RxLen--;
-		(uint16_t*)pSPIHandle->pRxBuffer++;
+		*((uint16_t*)pSPIHandle->pRxBuffer) = (uint16_t) pSPIHandle->pSPIx->DR;
+		pSPIHandle->RxLen-=2;
+		(uint16_t*)pSPIHandle->pTxBuffer++;
 	} else {
 		//8 bit dff
-		pSPIHandle->pSPIx->DR = *pSPIHandle->pRxBuffer;
+		*(pSPIHandle->pRxBuffer) = (uint8_t) pSPIHandle->pSPIx->DR;
 		pSPIHandle->RxLen--;
 		pSPIHandle->pRxBuffer++;
 	}

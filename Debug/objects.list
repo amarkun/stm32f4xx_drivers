@@ -1,5 +1,5 @@
 "drivers/src/stm32f407xx_gpio_driver.o"
 "drivers/src/stm32f407xx_spi_driver.o"
-"src/008spi_cmd_handling_it.o"
+"src/008spi_cmd_handling_it_alternate.o"
 "startup/startup_stm32.o"
 "startup/sysmem.o"
