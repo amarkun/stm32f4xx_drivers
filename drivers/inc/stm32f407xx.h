@@ -184,7 +184,7 @@ typedef struct {
 	__vo uint32_t SR2;	/*!< I2C status register 2,			Address offset: 0x18	*/
 	__vo uint32_t CCR;	/*!< I2C clock control register,	Address offset: 0x1C	*/
 	__vo uint32_t TRISE;/*!< I2C TRISE register,			Address offset: 0x20	*/
-	__vo uint32_t FLTR;	/*!< I2C FLTR register,			Address offset: 0x24	*/
+	__vo uint32_t FLTR;	/*!< I2C FLTR register,				Address offset: 0x24	*/
 } I2C_RegDef_t;
 
 /*
@@ -417,6 +417,19 @@ typedef struct {
 #define SPI2_REG_RESET()			do{ (RCC->APB1RSTR |= (1<<14)); (RCC->APB1RSTR &= ~(1<<14)); }while(0)
 #define SPI3_REG_RESET()			do{ (RCC->APB1RSTR |= (1<<15)); (RCC->APB1RSTR &= ~(1<<15)); }while(0)
 
+/*
+ * Macros to reset I2Cx peripherals
+ */
+#define I2C1_REG_RESET()			do{ (RCC->APB1RSTR |= (1<<21)); (RCC->APB1RSTR &= ~(1<<21)); }while(0)
+#define I2C2_REG_RESET()			do{ (RCC->APB1RSTR |= (1<<22)); (RCC->APB1RSTR &= ~(1<<22)); }while(0)
+#define I2C3_REG_RESET()			do{ (RCC->APB1RSTR |= (1<<23)); (RCC->APB1RSTR &= ~(1<<23)); }while(0)
+
+
+
+/*
+ * Macros for IRQ numbers
+ * maybe move these to a different section
+ */
 
 #define IRQ_NO_EXTI0		6
 #define IRQ_NO_EXTI1		7
@@ -426,12 +439,20 @@ typedef struct {
 #define IRQ_NO_EXTI9_5		23
 #define IRQ_NO_EXTI15_10	40
 
+#define IRQ_NO_I2C1_EV		31
+#define IRQ_NO_I2C1_ER		32
+#define IRQ_NO_I2C2_EV		33
+#define IRQ_NO_I2C2_ER		34
+#define IRQ_NO_I2C3_EV		72
+#define IRQ_NO_I2C3_ER		73
+
 #define IRQ_NO_SPI1			35
 #define IRQ_NO_SPI2			36
 #define IRQ_NO_SPI3			51
 
 /*
- * macros for all possible priority levels
+ * macros for all possible NVIC priority levels
+ * maybe move these to a different section
  */
 #define NVIC_IRQ_PRI0		0
 #define NVIC_IRQ_PRI1		1
@@ -450,6 +471,100 @@ typedef struct {
 #define NVIC_IRQ_PRI14		14
 #define NVIC_IRQ_PRI15		15
 
+
+/***************************************************************************************
+ * Bit position definitions for I2C peripheral
+ ***************************************************************************************/
+
+/*
+ * Bit Definition Macros for I2C_CR1
+ */
+#define I2C_CR1_PE			0
+#define I2C_CR1_SMBUS		1
+#define I2C_CR1_SMBTYPE		3
+#define I2C_CR1_ENARP		4
+#define I2C_CR1_ENPEC		5
+#define I2C_CR1_ENGC		6
+#define I2C_CR1_NOSTRETCH	7
+#define I2C_CR1_START		8
+#define I2C_CR1_STOP		9
+#define I2C_CR1_ACK			10
+#define I2C_CR1_POS			11
+#define I2C_CR1_PEC			12
+#define I2C_CR1_ALERT		13
+#define I2C_CR1_SWRST		15
+
+/*
+ * Bit Definition Macros for I2C_CR1
+ */
+
+#define I2C_CR2_FREQ		0 //8 bits long
+#define I2C_CR2_ITERREN		8
+#define I2C_CR2_ITEVTEN		9
+#define I2C_CR2_ITBUFEN		10
+#define I2C_CR2_DMAEN		11
+#define I2C_CR2_LAST		12
+
+/*
+ * Bit Definition Macros for I2C_OAR1
+ */
+//#define I2C_OAR1_ADD0		0 // this is the LSB of the address in 10-bit address mode, NA in 7-bit mode
+//#define I2C_OAR1_ADD1		1 // 7 or 9 bits; this is the LSB of the address in 7-bit address mode, included in 10-bit mode, 2 MSB are ignored in 7-bit mode
+//#define I2C_OAR1_ADDMODE	15
+
+/*
+ * Bit Definition Macros for I2C_OAR2
+ */
+//#define I2C_OAR2_ENDUAL		0
+//#define I2C_OAR2_ADD2		1 // 7 bits long
+
+/*
+ * Bit Definition Macros for I2C_SR1
+ */
+#define I2C_SR1_SB			0
+#define I2C_SR1_ADDR		1
+#define I2C_SR1_BTF			2
+#define I2C_SR1_ADD10		3
+#define I2C_SR1_STOPF		4
+#define I2C_SR1_RXNE		6
+#define I2C_SR1_TXE			7
+#define I2C_SR1_BERR		8
+#define I2C_SR1_ARLO		9
+#define I2C_SR1_AF			10
+#define I2C_SR1_OVR			11
+#define I2C_SR1_PECERR		12
+#define I2C_SR1_TIMEOUT		14
+#define I2C_SR1_SMBALERT	15
+
+/*
+ * Bit Definition Macros for I2C_SR2
+ */
+#define I2C_SR2_MSL				0
+#define I2C_SR2_BUSY			1
+#define I2C_SR2_TRA				2
+#define I2C_SR2_GENCALL			4
+#define I2C_SR2_SMBDEFAULT		5
+#define I2C_SR2_SMBHOST			6
+#define I2C_SR2_DUALF			7
+#define I2C_SR2_PEC				8 //8 bits long
+
+/*
+ * Bit Definition Marcos for I2C_CCR
+ */
+#define I2C_CCR_CCR		0 //12 bits long
+#define I2C_CCR_DUTY	14
+#define I2C_CCR_FS		15
+
+/*
+ * Bit Definition Macros for I2C_TRISE
+ */
+//#define I2C_TRISE_TRISE		0 //6 bits
+
+/*
+ * Bit Definition Macros for I2C_FLTR
+ */
+//#define I2C_FLTR_DNF	0 //4 bits
+//#define I2C_FLTR_ANOFF	4
 
 /***************************************************************************************
  * Bit position definitions for SPI peripheral
@@ -507,5 +622,7 @@ typedef struct {
 
 #include "stm32f407xx_gpio_driver.h"
 #include "stm32f407xx_spi_driver.h"
+#include "stm32f407xx_i2c_driver.h"
+#include "stm32f407xx_rcc_driver.h"
 
 #endif /* INC_STM32F407XX_H_ */

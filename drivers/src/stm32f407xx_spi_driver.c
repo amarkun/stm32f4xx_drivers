@@ -5,7 +5,6 @@
  *      Author: Adam
  */
 
-//NOTE Code will run automatically because TXE will be true by default
 
 #include "stm32f407xx_spi_driver.h"
 
@@ -60,7 +59,7 @@ void SPI_PeriClockControl(SPI_RegDef_t* pSPIx, uint8_t enOrDi){
 /******************************************************
  * @fn					- SPI_Init
  *
- * @brief				- Initializes a given GPIO peripheral with given configurations
+ * @brief				- Initializes a given SPI peripheral with given configurations
  *
  * @param[in]			- Struct holding base address and desired configurations of SPI peripheral
  *
@@ -76,7 +75,7 @@ void SPI_Init(SPI_Handle_t *pSPIHandle){
 	SPI_PeriClockControl(pSPIHandle->pSPIx, ENABLE);
 
 	//disable the specific SPI (concept taken from STM generated code) SPI will be enabled when sending or receiving
-	SPI_PeripheralControl(pSPIHandle->pSPIx, ENABLE);
+	SPI_PeripheralControl(pSPIHandle->pSPIx, DISABLE);
 
 	//first configure the SPI CR1 register
 	uint32_t tempReg = 0;
@@ -127,7 +126,7 @@ void SPI_Init(SPI_Handle_t *pSPIHandle){
 /******************************************************
  * @fn					- SPI_DeInit
  *
- * @brief				- Deinitializes a given SPI periphal and resets register
+ * @brief				- Deinitializes a given SPI peripheral and resets register
  *
  * @param[in]			- base address of SPI peripheral
  *
@@ -179,7 +178,7 @@ void SPI_SendData(SPI_RegDef_t* pSPIx, uint8_t *pTxBuffer, uint32_t len){
 
 	while(len > 0) {
 		//1. Wait until Tx is empty
-		while(SPI_GetFlagStatus(pSPIx, SPI_TXE_FLAG) ==  RESET);
+		while(SPI_GetFlagStatus(pSPIx, SPI_FLAG_TXE) ==  RESET);
 
 		//2. Check DFF in CR1
 		if (pSPIx->CR1 & (1 << SPI_CR1_DFF) ) {
@@ -221,7 +220,7 @@ void SPI_ReceiveData(SPI_RegDef_t* pSPIx, uint8_t *pRxBuffer, uint32_t len){
 
 	while(len > 0) {
 		//1. Wait until Rx is not empty
-		while(SPI_GetFlagStatus(pSPIx, SPI_RXNE_FLAG) ==  RESET);
+		while(SPI_GetFlagStatus(pSPIx, SPI_FLAG_RXNE) ==  RESET);
 
 		//2. Check DFF in CR1
 		if (pSPIx->CR1 & (1 << SPI_CR1_DFF) ) {
@@ -331,7 +330,7 @@ uint8_t SPI_ReceiveDataIT(SPI_Handle_t* pSPIHandle, uint8_t *pRxBuffer, uint32_t
  */
 
 /******************************************************
- * @fn					- SPI_IRQITConfig
+ * @fn					- SPI_IRQInterruptConfig
  *
  * @brief				- enables or disables a SPI peripherals IRQ functionality
  *
@@ -385,7 +384,7 @@ void SPI_IRQHandling(SPI_Handle_t *pSPIHandle){
 	uint8_t status, control; //change these?
 
 	//first check for TXE
-	status = pSPIHandle->pSPIx->SR & SPI_TXE_FLAG; // will be 1 if TXE is set
+	status = pSPIHandle->pSPIx->SR & SPI_FLAG_TXE; // will be 1 if TXE is set
 	control = pSPIHandle->pSPIx->CR2 & (1 << SPI_CR2_TXEIE); // will be 1 if TXEIE is set
 
 	if ( status && control ) {
@@ -394,7 +393,7 @@ void SPI_IRQHandling(SPI_Handle_t *pSPIHandle){
 	}
 
 	// check for RXNE
-	status = pSPIHandle->pSPIx->SR & SPI_RXNE_FLAG; // will be 1 if RXNE is set
+	status = pSPIHandle->pSPIx->SR & SPI_FLAG_RXNE; // will be 1 if RXNE is set
 	control = pSPIHandle->pSPIx->CR2 & (1 << SPI_CR2_RXNEIE); // will be 1 if RXNEIE is set
 
 	if ( status && control ) {
@@ -403,7 +402,7 @@ void SPI_IRQHandling(SPI_Handle_t *pSPIHandle){
 	}
 
 	// check for Overun flag
-	status = pSPIHandle->pSPIx->SR & SPI_OVR_FLAG; // will be 1 if OVR is set
+	status = pSPIHandle->pSPIx->SR & SPI_FLAG_OVR; // will be 1 if OVR is set
 	control = pSPIHandle->pSPIx->CR2 & (1 << SPI_CR2_ERRIE); // will be 1 if ERRIE is set
 
 	if ( status && control ) {
@@ -411,6 +410,10 @@ void SPI_IRQHandling(SPI_Handle_t *pSPIHandle){
 		spi_ovr_err_interrupt_handle(pSPIHandle);
 	}
 }
+
+/*
+ * Other peripheral control APIs
+ */
 
 /******************************************************
  * @fn					- SPI_PeripheralControl

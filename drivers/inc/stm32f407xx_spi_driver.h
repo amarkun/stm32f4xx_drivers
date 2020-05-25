@@ -106,15 +106,15 @@ typedef struct {
 /*
  * SPI related status flag definitions
  */
-#define SPI_RXNE_FLAG		(1 << SPI_SR_RXNE)
-#define SPI_TXE_FLAG		(1 << SPI_SR_TXE)
-#define SPI_CHSIDE_FLAG		(1 << SPI_SR_CHSIDE)
-#define SPI_UDR_FLAG		(1 << SPI_SR_UDR)
-#define SPI_CRCERR_FLAG		(1 << SPI_SR_CRCERR)
-#define SPI_MODF_FLAG		(1 << SPI_SR_MODF)
-#define SPI_OVR_FLAG		(1 << SPI_SR_OVR)
-#define SPI_BSY_FLAG		(1 << SPI_SR_BSY)
-#define SPI_SRE_FLAG		(1 << SPI_SR_FRE)
+#define SPI_FLAG_RXNE		(1 << SPI_SR_RXNE)
+#define SPI_FLAG_TXE		(1 << SPI_SR_TXE)
+#define SPI_FLAG_CHSIDE		(1 << SPI_SR_CHSIDE)
+#define SPI_FLAG_UDR		(1 << SPI_SR_UDR)
+#define SPI_FLAG_CRCERR		(1 << SPI_SR_CRCERR)
+#define SPI_FLAG_MODF		(1 << SPI_SR_MODF)
+#define SPI_FLAG_OVR		(1 << SPI_SR_OVR)
+#define SPI_FLAG_BSY		(1 << SPI_SR_BSY)
+#define SPI_FLAG_SRE		(1 << SPI_SR_FRE)
 
 
 
@@ -133,7 +133,6 @@ void SPI_PeriClockControl(SPI_RegDef_t* pSPIx, uint8_t enOrDi);
 void SPI_Init(SPI_Handle_t *pSPIHandle);
 void SPI_DeInit(SPI_RegDef_t* pSPIx);
 
-uint8_t SPI_GetFlagStatus(SPI_RegDef_t* pSPIx, uint32_t flag);
 
 /*
  * Data send and receive

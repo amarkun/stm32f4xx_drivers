@@ -358,6 +358,7 @@ void GPIO_IRQPriorityConfig(uint8_t IRQPriority, uint8_t IRQNumber){
 	//NOTE: because we used uint8_t for the IPR register, we can select the desired register directly
 	NVIC->IPR[IRQNumber]  = IRQPriority << NO_PR_BITS_IMPLEMENTED; //shift by 4 is required because the lower 4 bits are not implemented
 }
+
 /******************************************************
  * @fn					- GPIO_IRQHandling
  *
