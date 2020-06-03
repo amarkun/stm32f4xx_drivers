@@ -8,6 +8,9 @@
 3. I plan to edit some of this code to make it more robust. For example, I the I2C Rx interrupt functions should be built out.
     - Once this is done, some of the src files may no longer work, I will do my best to add comments to highlight this.
 
+**SETUP**
+
+*Coming soon*
 
 **Sofware**
 
