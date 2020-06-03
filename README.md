@@ -11,22 +11,22 @@
 
 **Sofware**
 
-STM32CubeIDE
-STM32CubeMX
-Arduino IDE
-Saleae Logic
+* STM32CubeIDE
+* STM32CubeMX
+* Arduino IDE
+* Saleae Logic (Not Required)
 
 **EQUIPMENT**
 
 (This will be updated with more specifics)
-STM32F407VG Discovery board
-Arduino Uno R3 board
-Breadboard (not required)
-Jumper wires
-Saleae (not required)
-Button
-Resistors
-LED
+* STM32F407VG Discovery board
+* Arduino Uno R3 board
+* Breadboard (not required)
+* Jumper wires
+* Saleae (not required)
+* Button
+* Resistors
+* LED
 
 **SUMMARY**
 
@@ -34,10 +34,6 @@ Drivers and testing code based on the Udemy Mastering Microcontroller with Embed
 
 This code is based on guidence from the Udemy Course [Mastering Microcontroller with Embedded Development](https://www.udemy.com/course/mastering-microcontroller-with-peripheral-driver-development/)
 
-The course focused on the development and understanding of drviers for different peripherals, namely: GPIO, SPI, I2C, and USART.
-The .c and .h files for these drivers can be found under the drivers/src and drivesr/inc folders.
+The course focused on the development and understanding of drviers for different peripherals, namely: GPIO, SPI, I2C, and USART. The .c and .h files for these drivers can be found under the drivers/src and drivesr/inc folders.
 
-In order to test out the driver files, several main files, found under the src/ folder, were created and tested.
-Only one of these files at a time should be included in the build.
-Many of these exercises required the use of the Arduino Uno R3 board.
-Code for this board was provided by the course, and thus is not included in this repository.
+In order to test out the driver files, several main files, found under the src/ folder, were created and tested. Only one of these files at a time should be included in the build. Many of these exercises required the use of the Arduino Uno R3 board Code for this board was provided by the course, and thus is not included in this repository.
