@@ -1,7 +1,7 @@
 /*
- * 012i2c_slave_tx_string.c
+ * 012i2c_slave_tx_string2.c
  *
- *  Created on: May 25, 2020
+ *  Created on: May 27, 2020
  *      Author: Adam
  */
 
@@ -24,7 +24,10 @@
 I2C_Handle_t hI2C1;
 GPIO_Handle_t I2Cpins;
 GPIO_Handle_t GpioBtn;
-uint8_t MESSAGE[32] = "STM32 Slave mode testing..";
+uint8_t MESSAGE[] = "HiHiHiHiHiHiHiHiHiHiHiHiHiHiHiHiHiHiHiHiHiHiHiHiHiHiHiHiHiHiHiHiHiHiHiHiHiHiHiHiHiHiHiHiHiHiHiHiHiHiHiHiHiHiHiHiHiHiHiHiHiHiHiHiHiHiHiHiHiHiHiHiHiHiHiHiHiHiHiHiHiHiHiHiHiHiHiHiHiHiHiHiHiHiHiHiHiHiHiHiHiHiHiHiHiHiHiHiHiHiHiHiHiHiHiHiHiHiHiHiHiHiHiHiHiHiHiHiHiHiHiHiHiHiHiHiHiHiHiHiHiHiHiHiHiHiHiHiHiHiHiHiHiHiHiHiHiHiHiHiHiHiHiHiHiHiHiHiHiHiHiHiHiHiHiHiHiHiHiHiHiHiHiHiHiHiHiHiHiHiHiHiHiHiHiHiHiHiHiHi...123";;
+uint8_t commandCode = 0;
+uint32_t dataLen = 0;
+
 
 
 void I2C_GPIO_Setup(void);
@@ -45,9 +48,7 @@ void delay(int time){
 
 //NOTE: mishandling if TXE is not cleared, but I2C_MasterReceiveDataIT is not set
 int main(void) {
-//	uint8_t messageLength;
-
-//	printf("Hello World\n");
+	dataLen = strlen((char*)MESSAGE);
 	//initizalize button
 	GPIO_ButtonInit();
 
@@ -132,12 +133,12 @@ void I2C1_ER_IRQHandler(void){
 
 //TODO: Modify this code so the transfer of data does not occur here, but in the driver code
 //		I think this will consist of changing the slave functions to it functions
-void I2C_ApplicationEventCallback(I2C_Handle_t *pI2CHandle, uint8_t appEvent){
+void I2C_ApplicationEventCallback(I2C_Handle_t *pI2CHandle, uint8_t appEvent)
+{
 	//NOTE: wouldn't a better way to send the data to be to have a length?
 	// and shouldn't this be implemented in the driver code?
-	static uint8_t commandCode = 0;
-	static uint8_t count = 0;
-	uint32_t messageLength = strlen((char*)MESSAGE);
+	static uint32_t count = 0;
+	static uint32_t wPtr = 0;
 
 	switch(appEvent)
 	{
@@ -145,13 +146,13 @@ void I2C_ApplicationEventCallback(I2C_Handle_t *pI2CHandle, uint8_t appEvent){
 		//Master wants some data. Slave has to send it
 		if(commandCode == 0x51)
 		{
-			//send the length information to the master
-			//NOTE: course code uses strlen function here, but I don't think that should be used during it handling
-			I2C_SlaveSendData(pI2CHandle->pI2Cx, messageLength);
+			//Here we are sending 4 bytes of length information
+			I2C_SlaveSendData(pI2CHandle->pI2Cx, ((dataLen >> ((count%4) * 8) & 0xFF)));
+			count++;
 		} else if (commandCode == 0x52)
 		{
-			//send the contents of MESSAGE
-			I2C_SlaveSendData(pI2CHandle->pI2Cx, MESSAGE[count++]);
+			//sending Tx_buf contents indexed by w_ptr variable
+			I2C_SlaveSendData(pI2CHandle->pI2Cx, MESSAGE[wPtr++]);
 		}
 		break;
 	case I2C_EV_DATA_RCV:
@@ -161,13 +162,28 @@ void I2C_ApplicationEventCallback(I2C_Handle_t *pI2CHandle, uint8_t appEvent){
 	case I2C_EV_STOP:
 		//This happens only during slave reception.
 		//Master has ended the I2C communication with the slave.
+		count = 0;
 		break;
 	case I2C_ER_AF:
-		//This happens only during slave txing
-		//Master has sent the NACK, so slave should stop sending more data
-		//invalidate command code
-		commandCode = 0xff;
+		//This will happen during slave transmitting data to master .
+		// slave should understand master needs no more data
+		//slave concludes end of Tx
+
+		//if the current active code is 0x52 then dont invalidate
+		if(commandCode != 0x52)
+		{
+			commandCode = 0xff;
+		}
+
+		//reset the cnt variable because its end of transmission
 		count = 0;
+
+		//Slave concludes it sent all the bytes when w_ptr reaches data_len
+		if(wPtr >= (dataLen))
+		{
+			wPtr=0;
+			commandCode = 0xff;
+		}
 		break;
 	default:
 		printf("Something unexpected happened\n");

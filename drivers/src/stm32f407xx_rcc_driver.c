@@ -67,3 +67,43 @@ uint32_t RCC_GetPCLK1Value(void){
 
 	return pclk1;
 }
+
+
+uint32_t RCC_GetPCLK2Value(void)
+{
+	uint32_t tmp,pclk2;
+	uint32_t systemClk = 0;
+	uint8_t clksrc = ( RCC->CFGR >> 2) & 0X3;
+
+	uint8_t ahbp,apb2p;
+
+	if(clksrc == 0)
+	{
+		systemClk = 16000000;
+	}else
+	{
+		systemClk = 8000000;
+	}
+	tmp = (RCC->CFGR >> 4 ) & 0xF;
+
+	if(tmp < 0x08)
+	{
+		ahbp = 1;
+	}else
+	{
+       ahbp = AHB_PreScaler[tmp-8];
+	}
+
+	tmp = (RCC->CFGR >> 13 ) & 0x7;
+	if(tmp < 0x04)
+	{
+		apb2p = 1;
+	}else
+	{
+		apb2p = APB_PreScaler[tmp-4];
+	}
+
+	pclk2 = (systemClk / ahbp )/ apb2p;
+
+	return pclk2;
+}

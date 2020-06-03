@@ -58,7 +58,6 @@ typedef struct {
 
 /*
  * I2C status flag definitions
- * should these be in the device specific header file?
  */
 
 #define I2C_FLAG_SB				(1 << I2C_SR1_SB)
