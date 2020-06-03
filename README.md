@@ -3,9 +3,11 @@
 **NOTES**
 1. This repository is likely overly inclusive in terms of files needed (e.g. debuging and configuration files). I will work to thin this out.
   -This code was written in an atttempt to follow course guidlines. With that in mind, I personally disagree with the style in which some of these scripts were coded.
+  
 2. I have mode some adjustments and have otherwise commented ares that I think could be improved
 3. I plan to edit some of this code to make it more robust. For example, I the I2C Rx interrupt functions should be built out.
    - Once this is done, some of the src files may no longer work, I will do my best to add comments to highlight this.
+
 
 **Sofware**
 STM32CubeIDE
