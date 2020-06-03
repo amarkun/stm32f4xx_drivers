@@ -10,12 +10,14 @@
 
 
 **Sofware**
+
 STM32CubeIDE
 STM32CubeMX
 Arduino IDE
 Saleae Logic
 
 **EQUIPMENT**
+
 (This will be updated with more specifics)
 STM32F407VG Discovery board
 Arduino Uno R3 board
@@ -27,6 +29,7 @@ Resistors
 LED
 
 **SUMMARY**
+
 Drivers and testing code based on the Udemy Mastering Microcontroller with Embedded Driver Development course.
 
 This code is based on guidence from the Udemy Course [Mastering Microcontroller with Embedded Development](https://www.udemy.com/course/mastering-microcontroller-with-peripheral-driver-development/)
