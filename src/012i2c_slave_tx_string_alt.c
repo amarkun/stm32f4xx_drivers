@@ -1,12 +1,12 @@
 /*
- * 012i2c_slave_tx_string.c
+ * 012i2c_slave_tx_string_alt.c
  *
- *  Created on: May 25, 2020
+ *  Created on: Jun 17, 2020
  *      Author: Adam
  */
 
-//TODO: Once the driver code is modified correctly with the slave send and receive (and IT versions),
-//		this code will not longer function
+//TODO: see if I can make this function mimic the original in terms limited code in the main loop
+//		this wouldn't be too difficult
 
 #include <stdio.h>
 #include <string.h>
@@ -25,7 +25,7 @@ I2C_Handle_t hI2C1;
 GPIO_Handle_t I2Cpins;
 GPIO_Handle_t GpioBtn;
 uint8_t MESSAGE[32] = "STM32 Slave mode testing..";
-
+volatile uint8_t txCmplt = RESET;
 
 void I2C_GPIO_Setup(void);
 void GPIO_ButtonInit(void);
@@ -38,6 +38,8 @@ void delay(int time){
 #define SLAVE_ADDR	0x68
 #define MY_ADDR SLAVE_ADDR
 
+
+#define COMMAND_CODE_LENGTH		1
 #define COMMAND_READ_LENGTH		0x51
 #define COMMAND_READ_DATA		0x52
 
@@ -45,7 +47,8 @@ void delay(int time){
 
 //NOTE: mishandling if TXE is not cleared, but I2C_MasterReceiveDataIT is not set
 int main(void) {
-//	uint8_t messageLength;
+	uint32_t messageLength = strlen((char*)MESSAGE);
+	uint8_t commandCode = 0;
 
 //	printf("Hello World\n");
 	//initizalize button
@@ -61,22 +64,22 @@ int main(void) {
 	I2C_IRQInterruptConfig(IRQ_NO_I2C1_EV, ENABLE);
 	I2C_IRQInterruptConfig(IRQ_NO_I2C1_ER, ENABLE);
 
-	//must enable interrupt control bits
-	I2C_SlaveControlCallbackEvents(hI2C1.pI2Cx, ENABLE);
-
-	//if I2C is not enabled, then enable it
-	if(! ( hI2C1.pI2Cx->CR1 & (1 << I2C_CR1_PE) ) ){
-		I2C_PeripheralControl(hI2C1.pI2Cx, ENABLE);
-	}
-
-
-	//enable acking so address phase can be acked
-	if(! (hI2C1.pI2Cx->CR1 & (1 << I2C_CR1_ACK) ) )
+	while(1)
 	{
-		I2C_ManageAcking(hI2C1.pI2Cx, ENABLE);
+		while( I2C_SlaveReceiveDataIT(&hI2C1, &commandCode, COMMAND_CODE_LENGTH) != I2C_READY);
+		while(!commandCode);
+		if(commandCode == 0x51)
+		{
+			//send the length information to the master
+			while(I2C_SlaveSendDataIT(&hI2C1, (uint8_t*) &messageLength, 1) != I2C_READY);
+		} else if (commandCode == 0x52)
+		{
+			//send the contents of MESSAGE
+			while(I2C_SlaveSendDataIT(&hI2C1, MESSAGE, messageLength) != I2C_READY);
+		}
+		while(txCmplt == RESET);
+		commandCode = 0;
 	}
-
-	while(1);
 
 }
 
@@ -130,44 +133,24 @@ void I2C1_ER_IRQHandler(void){
 }
 
 
-//TODO: Modify this code so the transfer of data does not occur here, but in the driver code
-//		I think this will consist of changing the slave functions to it functions
 void I2C_ApplicationEventCallback(I2C_Handle_t *pI2CHandle, uint8_t appEvent){
 	//NOTE: wouldn't a better way to send the data to be to have a length?
 	// and shouldn't this be implemented in the driver code?
-	static uint8_t commandCode = 0;
-	static uint8_t count = 0;
-	uint32_t messageLength = strlen((char*)MESSAGE);
-
+	//EDIT: In terms of sending the data, this method might be the only one that works
+	// 		because you need to first check the command code to determine what data needs to be sent.
+	//		An alternative might be to use the callbacks to modify a volatile variable that would then
+	//		send the data. This means that the
 	switch(appEvent)
 	{
-	case I2C_EV_DATA_REQ:
-		//Master wants some data. Slave has to send it
-		if(commandCode == 0x51)
-		{
-			//send the length information to the master
-			//NOTE: course code uses strlen function here, but I don't think that should be used during it handling
-			I2C_SlaveSendData(pI2CHandle->pI2Cx, messageLength);
-		} else if (commandCode == 0x52)
-		{
-			//send the contents of MESSAGE
-			I2C_SlaveSendData(pI2CHandle->pI2Cx, MESSAGE[count++]);
-		}
+	case I2C_EV_SLAVE_RX_CMPLT:
+//		printf("Reception Complete\n");
 		break;
-	case I2C_EV_DATA_RCV:
-		//Data is waiting for the slave to read. Slave has to read it
-		commandCode = I2C_SlaveReceiveData(pI2CHandle->pI2Cx);
+	case I2C_EV_SLAVE_TX_CMPLT:
+		txCmplt = SET;
 		break;
-	case I2C_EV_STOP:
-		//This happens only during slave reception.
-		//Master has ended the I2C communication with the slave.
+	case I2C_EV_STOPF:
 		break;
 	case I2C_ER_AF:
-		//This happens only during slave txing
-		//Master has sent the NACK, so slave should stop sending more data
-		//invalidate command code
-		commandCode = 0xff;
-		count = 0;
 		break;
 	default:
 		printf("Something unexpected happened\n");

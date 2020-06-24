@@ -106,16 +106,18 @@ typedef struct {
 /*
  * I2C Application Event Macros
  */
-#define I2C_EV_TX_CMPLT		0
-#define I2C_EV_RX_CMPLT		1
-#define I2C_EV_STOP			2
-#define I2C_ER_BERR  		3
-#define I2C_ER_ARLO  		4
-#define I2C_ER_AF    		5
-#define I2C_ER_OVR   		6
-#define I2C_ER_TIMEOUT 		7
-#define I2C_EV_DATA_REQ		8
-#define I2C_EV_DATA_RCV		9
+#define I2C_EV_MASTER_TX_CMPLT		0
+#define I2C_EV_MASTER_RX_CMPLT		1
+#define I2C_EV_SLAVE_TX_CMPLT		2
+#define I2C_EV_SLAVE_RX_CMPLT		3
+#define I2C_EV_STOPF				4
+#define I2C_ER_BERR  				5
+#define I2C_ER_ARLO  				6
+#define I2C_ER_AF    				7
+#define I2C_ER_OVR   				8
+#define I2C_ER_TIMEOUT 				9
+//#define I2C_EV_DATA_REQ				10
+//#define I2C_EV_DATA_RCV				11
 
 /**************************************************************************
  * 					APIs supported by this driver
@@ -138,11 +140,15 @@ void I2C_DeInit(I2C_RegDef_t* pI2Cx);
  */
 void I2C_MasterSendData(I2C_Handle_t *pI2CHandle, uint8_t *pTxbuffer, uint32_t len, uint8_t slaveAddr, uint8_t repStart);
 void I2C_MasterReceiveData(I2C_Handle_t *pI2CHandle, uint8_t *pRxBuffer, uint8_t len, uint8_t slaveAddr, uint8_t repStart);
-uint8_t  I2C_MasterSendDataIT(I2C_Handle_t *pI2CHandle,uint8_t *pTxBuffer, uint32_t len, uint8_t slaveAddr, uint8_t repStart);
-uint8_t I2C_MasterReceiveDataIT(I2C_Handle_t *pI2CHandle,uint8_t *pRxBuffer, uint32_t len, uint8_t slaveAddr, uint8_t repStart);
+//void I2C_SlaveSendData(I2C_RegDef_t *pI2Cx, uint8_t data);
+void I2C_SlaveSendData(I2C_Handle_t *pI2CHandle, uint8_t *pTxBuffer, uint8_t len);
+//void I2C_SlaveReceiveData(I2C_RegDef_t *pI2Cx);
+void I2C_SlaveReceiveData(I2C_Handle_t *pI2CHandle, uint8_t *pRxBuffer, uint8_t len);
 
-void I2C_SlaveSendData(I2C_RegDef_t *pI2Cx, uint8_t data);
-uint8_t I2C_SlaveReceiveData(I2C_RegDef_t *pI2Cx);
+uint8_t I2C_MasterSendDataIT(I2C_Handle_t *pI2CHandle,uint8_t *pTxBuffer, uint32_t len, uint8_t slaveAddr, uint8_t repStart);
+uint8_t I2C_MasterReceiveDataIT(I2C_Handle_t *pI2CHandle,uint8_t *pRxBuffer, uint32_t len, uint8_t slaveAddr, uint8_t repStart);
+uint8_t I2C_SlaveSendDataIT(I2C_Handle_t *pI2CHandle,uint8_t *pRxBuffer, uint32_t len);
+uint8_t I2C_SlaveReceiveDataIT(I2C_Handle_t *pI2CHandle,uint8_t *pRxBuffer, uint32_t len);
 
 /*
  * IRQ configuration and handling

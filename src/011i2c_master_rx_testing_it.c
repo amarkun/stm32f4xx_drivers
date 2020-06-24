@@ -23,6 +23,7 @@ GPIO_Handle_t I2Cpins;
 GPIO_Handle_t GpioBtn;
 uint8_t message[32];
 uint8_t rxCmplt = RESET;
+
 void I2C_GPIO_Setup(void);
 void GPIO_ButtonInit(void);
 void I2C_Setup(void);
