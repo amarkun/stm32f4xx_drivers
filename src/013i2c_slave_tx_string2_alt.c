@@ -5,6 +5,8 @@
  *      Author: Adam
  */
 
+//Testing
+
 //TODO: see if I can make this function mimic the original in terms limited code in the main loop
 //		this will be difficult due to the delays in arduino reception
 //		i.e. the arduino has send a new request for every 4 bytes
