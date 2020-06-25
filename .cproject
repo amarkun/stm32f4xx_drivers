@@ -85,12 +85,12 @@
 							<tool id="com.st.stm32cube.ide.mcu.gnu.managedbuild.tool.objcopy.symbolsrec.1677903783" name="MCU Output Converter Motorola S-rec with symbols" superClass="com.st.stm32cube.ide.mcu.gnu.managedbuild.tool.objcopy.symbolsrec"/>
 						</toolChain>
 					</folderInfo>
-					<fileInfo id="com.st.stm32cube.ide.mcu.gnu.managedbuild.config.exe.debug.204794493.2037482361" name="011i2c_master_rx_testing_it.c" rcbsApplicability="disable" resourcePath="src/011i2c_master_rx_testing_it.c" toolsToInvoke="com.st.stm32cube.ide.mcu.gnu.managedbuild.tool.c.compiler.599207616.713411537">
-						<tool id="com.st.stm32cube.ide.mcu.gnu.managedbuild.tool.c.compiler.599207616.713411537" name="MCU GCC Compiler" superClass="com.st.stm32cube.ide.mcu.gnu.managedbuild.tool.c.compiler.599207616"/>
+					<fileInfo id="com.st.stm32cube.ide.mcu.gnu.managedbuild.config.exe.debug.204794493.895158749" name="013i2c_slave_tx_string2.c" rcbsApplicability="disable" resourcePath="src/old/013i2c_slave_tx_string2.c" toolsToInvoke="com.st.stm32cube.ide.mcu.gnu.managedbuild.tool.c.compiler.599207616.72928459">
+						<tool id="com.st.stm32cube.ide.mcu.gnu.managedbuild.tool.c.compiler.599207616.72928459" name="MCU GCC Compiler" superClass="com.st.stm32cube.ide.mcu.gnu.managedbuild.tool.c.compiler.599207616"/>
 					</fileInfo>
 					<sourceEntries>
 						<entry flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="drivers"/>
-						<entry excluding="011i2c_master_rx_testing_it.c|010i2c_master_rx_testing.c|009i2c_master_tx_testing.c|010i2c_master_tx_testing.c|0010i2c_master_tx_testing.c|008spi_cmd_handling_it_alternate.c|008spi_cmd_handling_it.c|007api_cmd_handling_anon_refactor.c|007spi_cmd_handling.c|006spi_txonly_arduino.c|005spi_tx_testing.c|004button_interrupt.c|003led_button_ext.c|002led_button.c|001led_toggle.c" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="src"/>
+						<entry excluding="old/013i2c_slave_tx_string2.c|old/012i2c_slave_tx_string.c|013i2c_slave_tx_string2_alt.c|014usart_tx.c|015usart_case.c|011i2c_master_rx_testing_it.c|010i2c_master_rx_testing.c|009i2c_master_tx_testing.c|010i2c_master_tx_testing.c|0010i2c_master_tx_testing.c|008spi_cmd_handling_it_alternate.c|008spi_cmd_handling_it.c|007api_cmd_handling_anon_refactor.c|007spi_cmd_handling.c|006spi_txonly_arduino.c|005spi_tx_testing.c|004button_interrupt.c|003led_button_ext.c|002led_button.c|001led_toggle.c" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="src"/>
 						<entry flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="startup"/>
 					</sourceEntries>
 				</configuration>

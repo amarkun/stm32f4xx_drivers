@@ -164,7 +164,7 @@ void I2C_ApplicationEventCallback(I2C_Handle_t *pI2CHandle, uint8_t appEvent){
 		//shouldn't the slave receive it simply read the data?
 		commandCode = I2C_SlaveReceiveData(pI2CHandle->pI2Cx);
 		break;
-	case I2C_EV_STOP:
+	case I2C_EV_STOPF:
 		//This happens only during slave reception.
 		//Master has ended the I2C communication with the slave.
 		break;
