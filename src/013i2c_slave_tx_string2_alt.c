@@ -5,7 +5,6 @@
  *      Author: Adam
  */
 
-//Testing
 
 //TODO: see if I can make this function mimic the original in terms limited code in the main loop
 //		this will be difficult due to the delays in arduino reception
@@ -157,15 +156,6 @@ void I2C_ApplicationEventCallback(I2C_Handle_t *pI2CHandle, uint8_t appEvent){
 	switch(appEvent)
 	{
 	case I2C_EV_SLAVE_RX_CMPLT:
-//		if(COMMAND_CODE == 0x51)
-//		{
-//			//Here we are sending 4 bytes of length information
-////			while(I2C_SlaveSendDataIT(&hI2C1, (uint8_t*) &MESSAGE_LEN, 4) != I2C_READY);//4 because of the arduino
-//			I2C_SlaveSendData(&hI2C1, (uint8_t*) &MESSAGE_LEN, 4);//4 because of the arduino
-//		} else if (commandCode == 0x52)
-//		{
-//			I2C_SlaveSendData(&hI2C1, MESSAGE[wPtr++], 1);
-//		}
 		break;
 	case I2C_EV_SLAVE_TX_CMPLT:
 		printf("Transmition Complete\n");
